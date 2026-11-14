@@ -28,17 +28,101 @@ conda activate myenv               Switch to an env
 conda deactivate                   Return to the previous env (usually base)
 
 
-INSTALL / UPDATE / REMOVE PACKAGES  (in the active env)
--------------------------------------------------------
-conda install numpy                Install a package
-conda install numpy=2.1            Install a specific version
-conda install -c conda-forge pkg   Install from the conda-forge channel
-pip install -r requirements.txt    Use pip for packages conda doesn't have
-                                   (install conda packages first, pip last)
+INSTALL PACKAGES  (in the active env)
+-------------------------------------
+conda install numpy                     Install a package
+conda install numpy pandas matplotlib   Install several at once (best: lets conda
+                                        solve them together)
+conda install -n myenv numpy            Install into another env without activating
+conda install "numpy=2.1"               Exact minor version (2.1.x)
+conda install "numpy=2.1.3"             Exact version
+conda install "numpy>=2.0,<2.2"         Version range (quote it in PowerShell!)
+conda install --dry-run numpy           Preview changes without installing
+conda install -y numpy                  Skip the "Proceed ([y]/n)?" prompt
+conda install --file requirements.txt   Install from a list (conda-format names)
+
+
+CHANNELS  (where conda downloads packages from)
+-----------------------------------------------
+conda install -c conda-forge pkg             One-off install from conda-forge
+conda config --add channels conda-forge      Add conda-forge permanently
+conda config --set channel_priority strict   Avoid mixing channels (fewer conflicts)
+conda config --show channels                 Show configured channels
+conda config --remove channels conda-forge   Remove a channel
+conda list                                   The "Channel" column shows each
+                                             package's source
+
+
+SEARCH & INSPECT PACKAGES
+-------------------------
+conda search numpy                 All available versions
+conda search "numpy>=2"            Versions matching a range
+conda search -c conda-forge pkg    Search a specific channel
+conda search numpy --info          Details: dependencies, size, build, license
+conda list                         Everything installed in the active env
+conda list "^num"                  Installed packages matching a regex
+conda list --revisions             History of every install/update/remove
+conda env export --from-history    Only the packages you explicitly requested
+
+
+UPDATE PACKAGES
+---------------
 conda update numpy                 Update one package
-conda update --all                 Update all packages in the env
-conda remove numpy                 Uninstall a package
-conda search numpy                 See available versions
+conda update numpy pandas          Update several
+conda update --all                 Update everything in the env
+conda update -n myenv --all        Update everything in another env
+conda update --dry-run --all       Preview what would change
+
+
+PIN PACKAGES  (stop a package from being upgraded)
+--------------------------------------------------
+conda config --env --add pinned_packages "numpy=2.1"    Pin in the active env
+conda config --env --show pinned_packages               Show pins
+conda config --env --remove pinned_packages "numpy=2.1" Remove a pin
+conda install --freeze-installed pkg   Install pkg without changing others
+
+
+REMOVE / DOWNGRADE / ROLL BACK
+------------------------------
+conda remove numpy                 Uninstall a package (also removes packages
+                                   that depend on it)
+conda remove -n myenv numpy        Uninstall from another env
+conda install "numpy=1.26"         Downgrade = install the older version
+conda list --revisions             Find the revision number to go back to
+conda install --revision 3         Roll the env back to revision 3
+
+
+PIP INSIDE A CONDA ENV
+----------------------
+- Use conda first. Use pip only for packages conda/conda-forge don't have.
+- Install all conda packages BEFORE pip packages. If you need a conda package
+  later, it's often cleaner to rebuild the env.
+- Always use the env's pip:   python -m pip install pkg
+  (guarantees it installs into the active env, not another Python)
+python -m pip install pkg              Install
+python -m pip install "pkg==1.2.3"     Exact version
+python -m pip install -r requirements.txt
+python -m pip install -U pkg           Upgrade
+python -m pip uninstall pkg            Remove
+python -m pip list                     pip-installed packages (conda list shows
+                                       them too, with channel "pypi")
+python -m pip show pkg                 Version, location, dependencies
+python -m pip freeze > requirements.txt  Export pip packages
+python -m pip check                    Find broken/incompatible dependencies
+
+
+TROUBLESHOOTING
+---------------
+- "Solving environment" is slow/hangs: newer conda uses the fast libmamba solver
+  by default. On older conda:
+      conda install -n base conda-libmamba-solver
+      conda config --set solver libmamba
+- Conflicts: install packages together in one command, use one main channel
+  (strict priority), or create a fresh env with everything listed up front.
+- "ModuleNotFoundError" but you installed it: wrong env. Check
+      python -c "import sys; print(sys.executable)"
+  and that VS Code's interpreter/kernel is that same env.
+- Corrupted package/cache: conda clean --all, then reinstall the package.
 
 
 EXPORT / SHARE / REPRODUCE
