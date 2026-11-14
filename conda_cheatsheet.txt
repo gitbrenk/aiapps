@@ -1,0 +1,79 @@
+MINICONDA ENVIRONMENT CHEAT SHEET
+=================================
+Run these in Anaconda Prompt, or in PowerShell after a one-time:
+    conda init powershell      (then reopen the terminal)
+
+
+LIST & INSPECT
+--------------
+conda env list                     List all environments (* = active)
+conda info --envs                  Same as above
+conda list                         Packages in the active env
+conda list -n myenv                Packages in another env
+conda list numpy                   Check if/which version of a package is installed
+conda info                         Conda version, active env, config paths
+
+
+CREATE
+------
+conda create -n myenv python=3.12              New env with a specific Python
+conda create -n myenv python=3.12 numpy pandas New env with packages
+conda create -n newenv --clone myenv           Copy an existing env
+conda env create -f environment.yml            Create from a YAML file
+
+
+ACTIVATE / DEACTIVATE
+---------------------
+conda activate myenv               Switch to an env
+conda deactivate                   Return to the previous env (usually base)
+
+
+INSTALL / UPDATE / REMOVE PACKAGES  (in the active env)
+-------------------------------------------------------
+conda install numpy                Install a package
+conda install numpy=2.1            Install a specific version
+conda install -c conda-forge pkg   Install from the conda-forge channel
+pip install -r requirements.txt    Use pip for packages conda doesn't have
+                                   (install conda packages first, pip last)
+conda update numpy                 Update one package
+conda update --all                 Update all packages in the env
+conda remove numpy                 Uninstall a package
+conda search numpy                 See available versions
+
+
+EXPORT / SHARE / REPRODUCE
+--------------------------
+conda env export > environment.yml                  Full export (exact versions)
+conda env export --from-history > environment.yml   Only packages you asked for
+                                                    (more portable across OSes)
+conda env update -f environment.yml --prune         Sync env to a YAML file
+conda list --explicit > spec-file.txt               Exact lock file (same OS only)
+
+
+DELETE / CLEAN UP
+-----------------
+conda deactivate                   (can't remove the env you're in)
+conda env remove -n myenv          Delete an environment
+conda clean --all                  Free disk space (cached packages, tarballs)
+
+
+UPDATE CONDA ITSELF
+-------------------
+conda update -n base conda
+
+
+USING AN ENV IN VS CODE / JUPYTER
+---------------------------------
+- .py files:  Ctrl+Shift+P > "Python: Select Interpreter" > pick the env
+- Notebooks:  "Select Kernel" (top right) > Python Environments > pick the env
+- If the env doesn't show as a kernel, install ipykernel in it:
+      conda activate myenv
+      conda install ipykernel
+
+
+TIPS
+----
+- Keep "base" clean: don't install project packages there; make one env per project.
+- Check which Python is running:   python -c "import sys; print(sys.executable)"
+- Run a command in an env without activating:   conda run -n myenv python script.py
+- Rename an env: clone it to the new name, then remove the old one.
